@@ -56,4 +56,5 @@ public:
 private:
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TwoShot_V2AudioProcessor)
+    AudioFormatManager m_formatManager;
 };

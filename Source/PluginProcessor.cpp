@@ -95,6 +95,12 @@ void TwoShot_V2AudioProcessor::prepareToPlay (double sampleRate, int samplesPerB
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
+    File *sample = new File(
+        File::getSpecialLocation(File::userDesktopDirectory)
+        .getChildFile("Samples")
+        .getChildFile("125loop.wav")
+    );
+    std::unique_ptr<AudioFormatReader> fileReader(m_formatManager.createReaderFor(*sample));
 }
 
 void TwoShot_V2AudioProcessor::releaseResources()
