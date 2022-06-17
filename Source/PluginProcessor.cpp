@@ -22,6 +22,7 @@ TwoShot_V2AudioProcessor::TwoShot_V2AudioProcessor()
                        )
 #endif
 {
+    m_formatManager.registerBasicFormats();
 }
 
 TwoShot_V2AudioProcessor::~TwoShot_V2AudioProcessor()
