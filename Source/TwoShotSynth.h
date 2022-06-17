@@ -9,8 +9,9 @@
 */
 
 #pragma once
+
 #include <JuceHeader.h>
-#pragma once
+
 /**
  * Has 2 modes:
  * monophonic SAMPLE MODE
@@ -22,11 +23,11 @@
  *  - the amount skipped forward / backwards should be 1 BAR at a time
  *  - Here's an example: https://www.youtube.com/watch?v=B-xQP7_vI64
  */
-class Synth
+class TwoShotSynth
 {
     public:
-        Synth();
-        ~Synth();
+        TwoShotSynth();
+        ~TwoShotSynth();
 
         /**
          * Updates the audio for the Synth

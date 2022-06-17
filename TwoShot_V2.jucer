@@ -5,6 +5,15 @@
               pluginManufacturer="James Wenlock" cppLanguageStandard="17" displaySplashScreen="1">
   <MAINGROUP id="Hvm1mq" name="TwoShot_V2">
     <GROUP id="{93BA5173-84AE-4BD6-0984-13FCA2C801D7}" name="Source">
+      <FILE id="BIESRh" name="TwoShotSynth.cpp" compile="1" resource="0"
+            file="Source/TwoShotSynth.cpp"/>
+      <FILE id="Fs66ZW" name="TwoShotSynth.h" compile="0" resource="0" file="Source/TwoShotSynth.h"/>
+      <FILE id="CK8sxc" name="TwoShotSound.cpp" compile="1" resource="0"
+            file="Source/TwoShotSound.cpp"/>
+      <FILE id="M1Fqj1" name="TwoShotSound.h" compile="0" resource="0" file="Source/TwoShotSound.h"/>
+      <FILE id="Yd7E54" name="TwoShotVoice.cpp" compile="1" resource="0"
+            file="Source/TwoShotVoice.cpp"/>
+      <FILE id="rfAZSE" name="TwoShotVoice.h" compile="0" resource="0" file="Source/TwoShotVoice.h"/>
       <FILE id="u6FnGp" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
       <FILE id="LyyWVf" name="PluginProcessor.h" compile="0" resource="0"
