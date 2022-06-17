@@ -37,12 +37,15 @@ TwoShotSynth::~TwoShotSynth()
 * @param audioBpm if this value is present, then this is a polyphonic Loop, and the TwoShotSynth goes into LOOP MODE
 */
 void TwoShotSynth::setAudio(
-    juce::AudioBuffer<float> && audioBuffer,
+    juce::AudioFormatReader &source,
     const double audioSampleRate,
     std::optional<const double> audioBpm,
     const size_t sampleProgress
 )
 {
+    BigInteger range;
+    range.setRange(0, 128, true);
+    m_synth.addSound(new TwoShotSound("sample", source, range, 64, 0.01, 0.01, 20));
 }
 
 /**

@@ -11,6 +11,8 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include "TwoShotSound.h"
+#include "TwoShotVoice.h"
 
 /**
  * Has 2 modes:
@@ -34,7 +36,7 @@ class TwoShotSynth
          * @param audioBpm if this value is present, then this is a polyphonic Loop, and the Synth goes into LOOP MODE
          */
         void setAudio(
-            juce::AudioBuffer<float> && audioBuffer,
+            juce::AudioFormatReader& source,
             const double audioSampleRate,
             std::optional<const double> audioBpm,
             const size_t sampleProgress = 0
@@ -73,4 +75,7 @@ class TwoShotSynth
             const juce::MidiBuffer& midiData,
             std::optional<const double> currentHostBpm
         );
+
+        private:
+            juce::Synthesiser m_synth;
 };
