@@ -60,6 +60,13 @@ namespace juce
     void TwoShotVoice::pitchWheelMoved(int /*newValue*/) {}
     void TwoShotVoice::controllerMoved(int /*controllerNumber*/, int /*newValue*/) {}
 
+    void TwoShotVoice::setDetune(double newValue, double audioSampleRate)
+    {
+        detuneRatio = std::pow(2.0, (newValue / 1200.0))
+            * audioSampleRate / getSampleRate();
+
+    }
+
     //==============================================================================
     void TwoShotVoice::renderNextBlock(AudioBuffer<float>& outputBuffer, int startSample, int numSamples)
     {
@@ -71,7 +78,6 @@ namespace juce
 
             float* outL = outputBuffer.getWritePointer(0, startSample);
             float* outR = outputBuffer.getNumChannels() > 1 ? outputBuffer.getWritePointer(1, startSample) : nullptr;
-
             while (--numSamples >= 0)
             {
                 auto pos = (int)sourceSamplePosition;
@@ -98,7 +104,8 @@ namespace juce
                     *outL++ += (l + r) * 0.5f;
                 }
 
-                sourceSamplePosition += pitchRatio;
+                sourceSamplePosition += (detuneRatio);
+                sourceSamplePosition += (pitchRatio);
 
                 if (sourceSamplePosition > playingSound->length)
                 {

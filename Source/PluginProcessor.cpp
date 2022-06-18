@@ -106,6 +106,7 @@ void TwoShot_V2AudioProcessor::prepareToPlay (double sampleRate, int samplesPerB
     m_sampler.setAudio(*fileReader, fileReader->sampleRate, 120, 0);
     m_sampler.setAttack(2);
     m_sampler.setDecay(2);
+    m_sampler.setDetune(0);
 }
 
 void TwoShot_V2AudioProcessor::releaseResources()

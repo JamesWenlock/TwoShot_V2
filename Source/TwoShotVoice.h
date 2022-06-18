@@ -11,7 +11,6 @@
 #pragma once
 
 #include <JuceHeader.h>
-
 //==============================================================================
 /**
     A subclass of SynthesiserVoice that can play a SamplerSound.
@@ -42,12 +41,15 @@ namespace juce
         void pitchWheelMoved(int newValue) override;
         void controllerMoved(int controllerNumber, int newValue) override;
 
+        void setDetune(double newValue, double audioSampleRate);
+
         void renderNextBlock(AudioBuffer<float>&, int startSample, int numSamples) override;
         using SynthesiserVoice::renderNextBlock;
 
     private:
         //==============================================================================
         double pitchRatio = 0;
+        double detuneRatio = 0;
         double sourceSamplePosition = 0;
         float lgain = 0, rgain = 0;
 

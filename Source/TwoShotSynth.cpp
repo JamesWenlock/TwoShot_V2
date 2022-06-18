@@ -51,6 +51,7 @@ void TwoShotSynth::setAudio(
 {
     BigInteger range;
     range.setRange(0, 128, true);
+    m_audioSampleRate = audioSampleRate;
     m_synth.addSound(new TwoShotSound("sample", source, range, 64, 0.01, 0.01, 20));
 }
 
@@ -92,6 +93,13 @@ void TwoShotSynth::setDecay(const double decaySeconds)
 */
 void TwoShotSynth::setDetune(const double detuneAmount)
 {
+    for (int i = 0; i < m_synth.getNumVoices(); ++i)
+    {
+        if (auto voice = dynamic_cast<TwoShotVoice*>(m_synth.getVoice(i)))
+        {
+            voice->setDetune(detuneAmount, m_audioSampleRate);
+        }
+    }
 }
 
 /**
@@ -109,7 +117,7 @@ void TwoShotSynth::processNextBlock(
 AudioBuffer<float>& TwoShotSynth::getSamplerAudio(int soundIndex)
 {
     // get the last added synth sound as a TwoShotSound*
-    auto sound = dynamic_cast<SamplerSound*>(m_synth.getSound(soundIndex).get());
+    auto sound = dynamic_cast<TwoShotSound*>(m_synth.getSound(soundIndex).get());
 
     if (sound)
     {

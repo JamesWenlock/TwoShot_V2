@@ -82,9 +82,9 @@ class TwoShotSynth
          * Retrieves sound audio from given index
          */
         AudioBuffer<float>& getSamplerAudio(int soundIndex);
-        
         void updateADSR();
-
+        
         juce::Synthesiser m_synth;
         juce::ADSR::Parameters m_adsrParams;
+        double m_audioSampleRate = -1;
 };
