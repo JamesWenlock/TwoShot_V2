@@ -28,6 +28,8 @@ void TwoShot_V2AudioProcessorEditor::paint (juce::Graphics& g)
 {
     // (Our component is opaque, so we must completely fill the background with a solid colour)
     g.fillAll (juce::Colours::black);
+    g.setColour(juce::Colours::white);
+    g.drawFittedText("Testing atk + rel", getLocalBounds(), juce::Justification::centred, 1);
 }
 
 void TwoShot_V2AudioProcessorEditor::resized()

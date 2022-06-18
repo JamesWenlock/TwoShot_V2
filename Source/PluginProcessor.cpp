@@ -104,6 +104,8 @@ void TwoShot_V2AudioProcessor::prepareToPlay (double sampleRate, int samplesPerB
     std::unique_ptr<AudioFormatReader> fileReader(m_formatManager.createReaderFor(*sample));
     m_sampler.setHostSampleRate(sampleRate);
     m_sampler.setAudio(*fileReader, fileReader->sampleRate, 120, 0);
+    m_sampler.setAttack(2);
+    m_sampler.setDecay(2);
 }
 
 void TwoShot_V2AudioProcessor::releaseResources()

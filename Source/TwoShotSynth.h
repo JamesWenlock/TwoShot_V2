@@ -76,7 +76,15 @@ class TwoShotSynth
             std::optional<const double> currentHostBpm
         );
 
-        private:
-            juce::Synthesiser m_synth;
-            int m_progress = 0;
+    private:
+
+        /**
+         * Retrieves sound audio from given index
+         */
+        AudioBuffer<float>& getSamplerAudio(int soundIndex);
+        
+        void updateADSR();
+
+        juce::Synthesiser m_synth;
+        juce::ADSR::Parameters m_adsrParams;
 };
