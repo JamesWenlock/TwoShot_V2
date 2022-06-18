@@ -68,6 +68,12 @@ void TwoShotSynth::setHostSampleRate(const double currentSampleRate)
 */
 void TwoShotSynth::setReverse(const bool isReversed)
 {
+    if (m_isReversed != isReversed)
+    {
+        const int soundIndex = m_synth.getNumSounds() - 1;
+        getSamplerAudio(soundIndex)->reverse(0, getSamplerAudio(soundIndex)->getNumSamples());
+        m_isReversed = isReversed;
+    }
 }
 
 /**
@@ -114,20 +120,20 @@ void TwoShotSynth::processNextBlock(
     m_synth.renderNextBlock(outputAudio, midiData, 0, outputAudio.getNumSamples());
 }
 
-AudioBuffer<float>& TwoShotSynth::getSamplerAudio(int soundIndex)
+AudioBuffer<float>* TwoShotSynth::getSamplerAudio(int soundIndex)
 {
     // get the last added synth sound as a TwoShotSound*
     auto sound = dynamic_cast<TwoShotSound*>(m_synth.getSound(soundIndex).get());
 
     if (sound)
     {
-        return *sound->getAudioData();
+        return sound->getAudioData();
     }
 
     // just in case it somehow happens that the sound doesn't exist or isn't a SamplerSound,
     // return a static instance of an empty AudioBuffer here...
     static AudioBuffer<float> dummybuffer;
-    return dummybuffer;
+    return &dummybuffer;
 }
 
 void TwoShotSynth::updateADSR()
