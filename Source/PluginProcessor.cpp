@@ -102,6 +102,7 @@ void TwoShot_V2AudioProcessor::prepareToPlay (double sampleRate, int samplesPerB
         .getChildFile("125loop.wav")
     );
     std::unique_ptr<AudioFormatReader> fileReader(m_formatManager.createReaderFor(*sample));
+    m_sampler.setHostSampleRate(sampleRate);
     m_sampler.setAudio(*fileReader, fileReader->sampleRate, 120, 0);
 }
 
@@ -162,8 +163,8 @@ void TwoShot_V2AudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
     {
         auto* channelData = buffer.getWritePointer (channel);
 
-        // ..do something to the data...
     }
+    m_sampler.processNextBlock(buffer, midiMessages, std::nullopt);
 }
 
 //==============================================================================

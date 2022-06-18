@@ -25,6 +25,12 @@
 
 TwoShotSynth::TwoShotSynth()
 {
+    int numVoices = 3;
+
+    for (auto i = 0; i < numVoices; ++i)
+    {
+        m_synth.addVoice(new TwoShotVoice());
+    }
 }
 
 TwoShotSynth::~TwoShotSynth()
@@ -53,6 +59,7 @@ void TwoShotSynth::setAudio(
 */
 void TwoShotSynth::setHostSampleRate(const double currentSampleRate)
 {
+    m_synth.setCurrentPlaybackSampleRate(currentSampleRate);
 }
 
 /**
@@ -92,4 +99,5 @@ void TwoShotSynth::processNextBlock(
     std::optional<const double> currentHostBpm
 )
 {
+    m_synth.renderNextBlock(outputAudio, midiData, 0, outputAudio.getNumSamples());
 }

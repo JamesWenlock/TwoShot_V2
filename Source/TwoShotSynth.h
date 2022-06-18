@@ -78,4 +78,5 @@ class TwoShotSynth
 
         private:
             juce::Synthesiser m_synth;
+            int m_progress = 0;
 };
