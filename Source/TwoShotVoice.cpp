@@ -25,8 +25,9 @@ namespace juce
     {
         if (auto* sound = dynamic_cast<const TwoShotSound*> (s))
         {
-            pitchRatio = std::pow(2.0, (midiNoteNumber - sound->midiRootNote) / 12.0)
+            pitchRatio = std::pow(2.0, (midiNoteNumber - sound->midiRootNote) / 12.0) 
                 * sound->sourceSampleRate / getSampleRate();
+
 
             sourceSamplePosition = 0.0;
             lgain = velocity;
@@ -60,11 +61,20 @@ namespace juce
     void TwoShotVoice::pitchWheelMoved(int /*newValue*/) {}
     void TwoShotVoice::controllerMoved(int /*controllerNumber*/, int /*newValue*/) {}
 
-    void TwoShotVoice::setDetune(double newValue, double audioSampleRate)
+    void TwoShotVoice::setDetune(double newValue)
     {
-        detuneRatio = std::pow(2.0, (newValue / 1200.0))
-            * audioSampleRate / getSampleRate();
+        detuneRatio = std::pow(2.0, (newValue / 1200.0));
 
+    }
+
+    void TwoShotVoice::setBPMComp(double audioBPM, double hostBPM)
+    {
+        bpmCompRatio = (hostBPM / audioBPM);
+    }
+
+    void TwoShotVoice::setIsLoop(bool newValue)
+    {
+        isLoop = newValue;
     }
 
     //==============================================================================
@@ -104,8 +114,14 @@ namespace juce
                     *outL++ += (l + r) * 0.5f;
                 }
 
-                sourceSamplePosition += (detuneRatio);
-                sourceSamplePosition += (pitchRatio);
+                if (isLoop)
+                {
+                    sourceSamplePosition += (pitchRatio * bpmCompRatio);
+                }
+                else
+                {
+                    sourceSamplePosition += (pitchRatio * detuneRatio);
+                }
 
                 if (sourceSamplePosition > playingSound->length)
                 {

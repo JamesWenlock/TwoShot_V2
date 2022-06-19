@@ -23,7 +23,11 @@
 *  - Here's an example: https://www.youtube.com/watch?v=B-xQP7_vI64
 */
 
-TwoShotSynth::TwoShotSynth()
+TwoShotSynth::TwoShotSynth() : 
+    m_audioSampleRate(44100),
+    m_audioBPM(120),
+    m_isReversed(false),
+    m_isLoop(true)
 {
     int numVoices = 3;
 
@@ -49,10 +53,26 @@ void TwoShotSynth::setAudio(
     const size_t sampleProgress
 )
 {
-    BigInteger range;
-    range.setRange(0, 128, true);
-    m_audioSampleRate = audioSampleRate;
-    m_synth.addSound(new TwoShotSound("sample", source, range, 64, 0.01, 0.01, 20));
+    m_synth.clearSounds();
+    if (audioBpm.has_value())
+    {
+        m_audioBPM = audioBpm.value();
+        m_isLoop = true;
+        setIsLoop(true);
+        BigInteger range;
+        range.setBit(64);
+        m_audioSampleRate = audioSampleRate;
+        m_synth.addSound(new TwoShotSound("sample", source, range, 64, 0.01, 0.01, 20));
+    }
+    else
+    {
+        m_isLoop = false;
+        setIsLoop(false);
+        BigInteger range;
+        range.setRange(0, 127, true);
+        m_audioSampleRate = audioSampleRate;
+        m_synth.addSound(new TwoShotSound("sample", source, range, 64, 0.01, 0.01, 20));
+    }
 }
 
 /**
@@ -68,12 +88,7 @@ void TwoShotSynth::setHostSampleRate(const double currentSampleRate)
 */
 void TwoShotSynth::setReverse(const bool isReversed)
 {
-    if (m_isReversed != isReversed)
-    {
-        const int soundIndex = m_synth.getNumSounds() - 1;
-        getSamplerAudio(soundIndex)->reverse(0, getSamplerAudio(soundIndex)->getNumSamples());
-        m_isReversed = isReversed;
-    }
+    getSamplerAudio(0)->reverse(0, getSamplerAudio(0)->getNumSamples());
 }
 
 /**
@@ -103,7 +118,21 @@ void TwoShotSynth::setDetune(const double detuneAmount)
     {
         if (auto voice = dynamic_cast<TwoShotVoice*>(m_synth.getVoice(i)))
         {
-            voice->setDetune(detuneAmount, m_audioSampleRate);
+            voice->setDetune(detuneAmount);
+        }
+    }
+}
+
+/**
+* This is called when the user changes the pitch, from within the UI
+*/
+void TwoShotSynth::setIsLoop(const bool isLoop)
+{
+    for (int i = 0; i < m_synth.getNumVoices(); ++i)
+    {
+        if (auto voice = dynamic_cast<TwoShotVoice*>(m_synth.getVoice(i)))
+        {
+            voice->setIsLoop(isLoop);
         }
     }
 }
@@ -117,8 +146,19 @@ void TwoShotSynth::processNextBlock(
     std::optional<const double> currentHostBpm
 )
 {
+    if (currentHostBpm.has_value())
+    {
+        for (int i = 0; i < m_synth.getNumVoices(); ++i)
+        {
+            if (auto voice = dynamic_cast<TwoShotVoice*>(m_synth.getVoice(i)))
+            {
+                voice->setBPMComp(m_audioBPM, currentHostBpm.value());
+            }
+        }
+    }
     m_synth.renderNextBlock(outputAudio, midiData, 0, outputAudio.getNumSamples());
 }
+
 
 AudioBuffer<float>* TwoShotSynth::getSamplerAudio(int soundIndex)
 {

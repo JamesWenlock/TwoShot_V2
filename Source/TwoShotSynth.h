@@ -77,15 +77,14 @@ class TwoShotSynth
         );
 
     private:
-
-        /**
-         * Retrieves sound audio from given index
-         */
         AudioBuffer<float>* getSamplerAudio(int soundIndex);
+        void setIsLoop(const bool isLoop);
         void updateADSR();
         
         juce::Synthesiser m_synth;
         juce::ADSR::Parameters m_adsrParams;
-        double m_audioSampleRate = -1;
-        bool m_isReversed = false;
+        std::atomic<double> m_audioSampleRate;
+        std::atomic<double> m_audioBPM;
+        std::atomic<bool> m_isReversed;
+        std::atomic<bool> m_isLoop;
 };

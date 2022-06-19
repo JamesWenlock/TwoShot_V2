@@ -28,6 +28,7 @@ private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     TwoShot_V2AudioProcessor& audioProcessor;
+    juce::Label label;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TwoShot_V2AudioProcessorEditor)
 };

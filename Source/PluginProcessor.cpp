@@ -23,6 +23,8 @@ TwoShot_V2AudioProcessor::TwoShot_V2AudioProcessor()
 #endif
 {
     m_formatManager.registerBasicFormats();
+    // Use this method as the place to do any pre-playback
+// initialisation that you need..
 }
 
 TwoShot_V2AudioProcessor::~TwoShot_V2AudioProcessor()
@@ -94,20 +96,17 @@ void TwoShot_V2AudioProcessor::changeProgramName (int index, const juce::String&
 //==============================================================================
 void TwoShot_V2AudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    // Use this method as the place to do any pre-playback
-    // initialisation that you need..
-    File *sample = new File(
+    File* sample = new File(
         File::getSpecialLocation(File::userDesktopDirectory)
         .getChildFile("Samples")
-        .getChildFile("125loop.wav")
+        .getChildFile("112loop.wav")
     );
     std::unique_ptr<AudioFormatReader> fileReader(m_formatManager.createReaderFor(*sample));
     m_sampler.setHostSampleRate(sampleRate);
-    m_sampler.setAudio(*fileReader, fileReader->sampleRate, 120, 0);
-    m_sampler.setAttack(2);
-    m_sampler.setDecay(2);
+    m_sampler.setAudio(*fileReader, fileReader->sampleRate, 112, 0);
+    m_sampler.setAttack(0.1);
+    m_sampler.setDecay(0.5);
     m_sampler.setDetune(0);
-    m_sampler.setReverse(true);
 }
 
 void TwoShot_V2AudioProcessor::releaseResources()
@@ -168,7 +167,7 @@ void TwoShot_V2AudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
         auto* channelData = buffer.getWritePointer (channel);
 
     }
-    m_sampler.processNextBlock(buffer, midiMessages, std::nullopt);
+    m_sampler.processNextBlock(buffer, midiMessages, 140);
 }
 
 //==============================================================================
@@ -194,6 +193,11 @@ void TwoShot_V2AudioProcessor::setStateInformation (const void* data, int sizeIn
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
+}
+
+double TwoShot_V2AudioProcessor::getBPM()
+{
+    return m_bpm;
 }
 
 //==============================================================================

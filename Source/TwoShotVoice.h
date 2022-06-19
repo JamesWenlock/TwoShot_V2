@@ -41,7 +41,9 @@ namespace juce
         void pitchWheelMoved(int newValue) override;
         void controllerMoved(int controllerNumber, int newValue) override;
 
-        void setDetune(double newValue, double audioSampleRate);
+        void setDetune(double newValue);
+        void setBPMComp(double audioBPM, double hostBPM);
+        void setIsLoop(bool newValue);
 
         void renderNextBlock(AudioBuffer<float>&, int startSample, int numSamples) override;
         using SynthesiserVoice::renderNextBlock;
@@ -49,9 +51,11 @@ namespace juce
     private:
         //==============================================================================
         double pitchRatio = 0;
-        double detuneRatio = 0;
+        double detuneRatio = 1;
+        double  bpmCompRatio = 1;
         double sourceSamplePosition = 0;
         float lgain = 0, rgain = 0;
+        bool isLoop = false;
 
         ADSR adsr;
 
