@@ -44,6 +44,17 @@ namespace juce
             double releaseTimeSecs,
             double maxSampleLengthSeconds);
 
+        TwoShotSound(const String& name,
+            AudioFormatReader& source,
+            const BigInteger& midiNotes,
+            int midiNoteForNormalPitch,
+            int startSample,
+            int numSamples,
+            int fadeLength,
+            double attackTimeSecs,
+            double releaseTimeSecs,
+            double maxSampleLengthSeconds);
+
         /** Destructor. */
         ~TwoShotSound() override;
 

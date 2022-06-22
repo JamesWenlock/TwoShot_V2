@@ -14,7 +14,7 @@
 //==============================================================================
 /**
 */
-class TwoShot_V2AudioProcessorEditor  : public juce::AudioProcessorEditor
+class TwoShot_V2AudioProcessorEditor  : public juce::AudioProcessorEditor, public juce::Slider::Listener
 {
 public:
     TwoShot_V2AudioProcessorEditor (TwoShot_V2AudioProcessor&);
@@ -23,12 +23,14 @@ public:
     //==============================================================================
     void paint (juce::Graphics&) override;
     void resized() override;
+    void sliderValueChanged(Slider* slider) override;
 
 private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     TwoShot_V2AudioProcessor& audioProcessor;
     juce::Label label;
+    juce::Slider slider;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TwoShot_V2AudioProcessorEditor)
 };

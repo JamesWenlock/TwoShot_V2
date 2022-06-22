@@ -11,6 +11,8 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include <ea_soundtouch/ea_soundtouch.h>
+
 //==============================================================================
 /**
     A subclass of SynthesiserVoice that can play a SamplerSound.
@@ -33,6 +35,10 @@ namespace juce
         ~TwoShotVoice() override;
 
         //==============================================================================
+
+        void setSampleRate(uint sampleRate);
+        void setBlockSize(uint blockSize);
+
         bool canPlaySound(SynthesiserSound*) override;
 
         void startNote(int midiNoteNumber, float velocity, SynthesiserSound*, int pitchWheel) override;
@@ -47,6 +53,7 @@ namespace juce
 
         void renderNextBlock(AudioBuffer<float>&, int startSample, int numSamples) override;
         using SynthesiserVoice::renderNextBlock;
+        std::vector<float> m_buf;
 
     private:
         //==============================================================================
@@ -56,6 +63,7 @@ namespace juce
         double sourceSamplePosition = 0;
         float lgain = 0, rgain = 0;
         bool isLoop = false;
+        soundtouch::SoundTouch soundTouch;
 
         ADSR adsr;
 

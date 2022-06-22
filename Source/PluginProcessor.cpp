@@ -103,9 +103,9 @@ void TwoShot_V2AudioProcessor::prepareToPlay (double sampleRate, int samplesPerB
     );
     std::unique_ptr<AudioFormatReader> fileReader(m_formatManager.createReaderFor(*sample));
     m_sampler.setHostSampleRate(sampleRate);
-    m_sampler.setAudio(*fileReader, fileReader->sampleRate, 112, 0);
-    m_sampler.setAttack(0.1);
-    m_sampler.setDecay(0.5);
+    m_sampler.setAudio(*fileReader, fileReader->sampleRate, std::nullopt, 0);
+    m_sampler.setAttack(0.01);
+    m_sampler.setDecay(0.01);
     m_sampler.setDetune(0);
 }
 
@@ -167,7 +167,7 @@ void TwoShot_V2AudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
         auto* channelData = buffer.getWritePointer (channel);
 
     }
-    m_sampler.processNextBlock(buffer, midiMessages, 140);
+    m_sampler.processNextBlock(buffer, midiMessages, std::nullopt);
 }
 
 //==============================================================================

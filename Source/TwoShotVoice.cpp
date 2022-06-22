@@ -13,7 +13,9 @@
 
 namespace juce
 {
-    TwoShotVoice::TwoShotVoice() {}
+    TwoShotVoice::TwoShotVoice() {
+
+    }
     TwoShotVoice::~TwoShotVoice() {}
 
     bool TwoShotVoice::canPlaySound(SynthesiserSound* sound)
@@ -70,6 +72,7 @@ namespace juce
     void TwoShotVoice::setBPMComp(double audioBPM, double hostBPM)
     {
         bpmCompRatio = (hostBPM / audioBPM);
+        soundTouch.setPitchOctaves(1.0);
     }
 
     void TwoShotVoice::setIsLoop(bool newValue)
@@ -111,9 +114,8 @@ namespace juce
                 }
                 else
                 {
-                    *outL++ += (l + r) * 0.5f;
+                    *outL = (l + r) * 0.5f;
                 }
-
                 if (isLoop)
                 {
                     sourceSamplePosition += (pitchRatio * bpmCompRatio);

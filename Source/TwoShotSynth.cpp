@@ -27,8 +27,14 @@ TwoShotSynth::TwoShotSynth() :
     m_audioSampleRate(44100),
     m_audioBPM(120),
     m_isReversed(false),
-    m_isLoop(true)
+    m_isMode2(true)
 {
+    m_soundTouch.setChannels(2);
+    m_soundTouch.setSampleRate(m_audioSampleRate);
+    m_soundTouch.setRate(1.0);
+    m_soundTouch.setPitch(0.5);
+    m_soundTouch.flush();
+
     int numVoices = 3;
 
     for (auto i = 0; i < numVoices; ++i)
@@ -53,25 +59,41 @@ void TwoShotSynth::setAudio(
     const size_t sampleProgress
 )
 {
+    int naturalPitch = 64;
     m_synth.clearSounds();
     if (audioBpm.has_value())
     {
         m_audioBPM = audioBpm.value();
-        m_isLoop = true;
+        m_isMode2 = true;
         setIsLoop(true);
-        BigInteger range;
-        range.setBit(64);
+        double beatsPerSecond = (audioBpm.value() / 60.0);
+        double beatsPerSample = beatsPerSecond / audioSampleRate;
+        double samplesPerBeat = 1.0 / beatsPerSample;
+        int samplesPerBar = (int) samplesPerBeat * 4.0;
+        int fadeLength = 30;
+        DBG(juce::String(samplesPerBar));
         m_audioSampleRate = audioSampleRate;
-        m_synth.addSound(new TwoShotSound("sample", source, range, 64, 0.01, 0.01, 20));
+        int startSample = 0;
+        int numSamples = jmin((int) samplesPerBar, (int) source.lengthInSamples);
+        int i = 0;
+        while (numSamples >= fadeLength && startSample < source.lengthInSamples)
+        {
+            BigInteger range;
+            range.setBit(naturalPitch + i);
+            m_synth.addSound(new TwoShotSound("sample", source, range, naturalPitch + i, startSample, numSamples, fadeLength, 0.01, 0.01, 120));
+            startSample += samplesPerBar;
+            numSamples = jmin((int)samplesPerBar, (int)source.lengthInSamples - startSample);
+            i++;
+        }
     }
     else
     {
-        m_isLoop = false;
+        m_isMode2 = false;
         setIsLoop(false);
         BigInteger range;
         range.setRange(0, 127, true);
         m_audioSampleRate = audioSampleRate;
-        m_synth.addSound(new TwoShotSound("sample", source, range, 64, 0.01, 0.01, 20));
+        m_synth.addSound(new TwoShotSound("sample", source, range, naturalPitch, 0.01, 0.01, 120));
     }
 }
 
@@ -83,12 +105,32 @@ void TwoShotSynth::setHostSampleRate(const double currentSampleRate)
     m_synth.setCurrentPlaybackSampleRate(currentSampleRate);
 }
 
+///**
+//* This is called when the host changes its blockSize
+//*/
+//void TwoShotSynth::setHostBlockSize(const uint blockSize)
+//{
+//    m_buf.resize(static_cast<std::vector<float, std::allocator<float>>::size_type>(blockSize) * 2);
+//}
+
+
 /**
 * This is called when the user clicks the reverse toggle in the UI
 */
 void TwoShotSynth::setReverse(const bool isReversed)
 {
-    getSamplerAudio(0)->reverse(0, getSamplerAudio(0)->getNumSamples());
+    if (m_isReversed != isReversed)
+    {
+        if (m_isMode2)
+        {
+
+        }
+        else
+        {
+
+        }
+        getSamplerAudio(0)->reverse(0, getSamplerAudio(0)->getNumSamples());
+    }
 }
 
 /**
@@ -124,7 +166,7 @@ void TwoShotSynth::setDetune(const double detuneAmount)
 }
 
 /**
-* This is called when the user changes the pitch, from within the UI
+* This is called when user switches to mode 2
 */
 void TwoShotSynth::setIsLoop(const bool isLoop)
 {
@@ -148,6 +190,7 @@ void TwoShotSynth::processNextBlock(
 {
     if (currentHostBpm.has_value())
     {
+        //m_soundTouch.setPitch(m_audioBPM / currentHostBpm.value());
         for (int i = 0; i < m_synth.getNumVoices(); ++i)
         {
             if (auto voice = dynamic_cast<TwoShotVoice*>(m_synth.getVoice(i)))
@@ -157,6 +200,25 @@ void TwoShotSynth::processNextBlock(
         }
     }
     m_synth.renderNextBlock(outputAudio, midiData, 0, outputAudio.getNumSamples());
+    //int nch = 2;
+    //// copy input samples in interleaved format to helper buffer
+    //for (int i = 0; i < nch; ++i)
+    //    for (int j = 0; j < outputAudio.getNumSamples(); ++j)
+    //        m_buf[j * nch + i] = outputAudio.getSample(i, j);
+    //m_soundTouch.putSamples(m_buf.data(), outputAudio.getNumSamples());
+    //if (m_soundTouch.numSamples() >= outputAudio.getNumSamples()) // does SoundTouch have enough samples ready?
+    //{
+    //    m_soundTouch.receiveSamples(m_buf.data(), outputAudio.getNumSamples());
+    //    // copy SoundTouch output samples to split format Juce buffer
+    //    for (int i = 0; i < nch; ++i)
+    //        for (int j = 0; j < outputAudio.getNumSamples(); ++j)
+    //            outputAudio.setSample(i, j, m_buf[j * nch + i]);
+    //}
+    //else
+    //{
+    //    // SoundTouch didn't have enough output samples, just output silence
+    //    outputAudio.clear();
+    //}
 }
 
 

@@ -2,7 +2,8 @@
 
 <JUCERPROJECT id="IQTxiH" name="TwoShot_V2" projectType="audioplug" useAppConfig="0"
               jucerFormatVersion="1" pluginCharacteristicsValue="pluginIsSynth,pluginWantsMidiIn"
-              pluginManufacturer="James Wenlock" cppLanguageStandard="17" displaySplashScreen="1">
+              pluginManufacturer="James Wenlock" cppLanguageStandard="latest"
+              displaySplashScreen="1">
   <MAINGROUP id="Hvm1mq" name="TwoShot_V2">
     <GROUP id="{93BA5173-84AE-4BD6-0984-13FCA2C801D7}" name="Source">
       <FILE id="uSJSvA" name="PluginEditor.cpp" compile="1" resource="0"
@@ -44,10 +45,12 @@
         <MODULEPATH id="juce_gui_basics" path="../../../../Program Files/juce-6.0.6-windows/JUCE/modules"/>
         <MODULEPATH id="juce_gui_extra" path="../../../../Program Files/juce-6.0.6-windows/JUCE/modules"/>
         <MODULEPATH id="juce_dsp" path="../../../../../Program Files/juce-6.0.6-windows/JUCE/modules"/>
+        <MODULEPATH id="ea_soundtouch" path="modules"/>
       </MODULEPATHS>
     </VS2019>
   </EXPORTFORMATS>
   <MODULES>
+    <MODULE id="ea_soundtouch" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
     <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_audio_devices" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_audio_formats" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>

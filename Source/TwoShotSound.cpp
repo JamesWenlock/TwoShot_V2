@@ -40,6 +40,39 @@ namespace juce
         }
     }
 
+    TwoShotSound::TwoShotSound(const String& soundName,
+        AudioFormatReader& source,
+        const BigInteger& notes,
+        int midiNoteForNormalPitch,
+        int startSample,
+        int numSamples,
+        int fadeLength,
+        double attackTimeSecs,
+        double releaseTimeSecs,
+        double maxSampleLengthSeconds)
+        : name(soundName),
+        sourceSampleRate(source.sampleRate),
+        midiNotes(notes),
+        midiRootNote(midiNoteForNormalPitch)
+    {
+        if (sourceSampleRate > 0 && source.lengthInSamples > 0)
+        {
+            length = jmin((int)numSamples,
+                (int)(maxSampleLengthSeconds * sourceSampleRate));
+            data.reset(new AudioBuffer<float>(jmin(2, (int)source.numChannels), length + 4));
+            data.get()->clear();
+            source.read(data.get(), 0, numSamples, startSample, true, true);
+            data.get()->applyGainRamp(
+                data.get()->getNumSamples() - fadeLength, 
+                fadeLength, 
+                1.0, 
+                0
+            );
+            params.attack = static_cast<float> (attackTimeSecs);
+            params.release = static_cast<float> (releaseTimeSecs);
+        }
+    }
+
     TwoShotSound::~TwoShotSound()
     {
     }

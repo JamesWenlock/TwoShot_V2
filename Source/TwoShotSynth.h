@@ -42,10 +42,12 @@ class TwoShotSynth
             const size_t sampleProgress = 0
         );
 
-        /**
-         * This is called when the host updates it's sampleRate
-         */
+        ///**
+        // * This is called when the host updates it's sampleRate
+        // */
         void setHostSampleRate(const double currentSampleRate);
+
+        //void setHostBlockSize(const uint blockSize);
 
         /**
          * This is called when the user clicks the reverse toggle in the UI
@@ -67,6 +69,9 @@ class TwoShotSynth
          */
         void setDetune(const double detuneAmount);
 
+        //void setVoiceSampleRate(const uint sampleRate);
+
+
         /**
          * This is called from the JUCE process block method
          */
@@ -80,11 +85,12 @@ class TwoShotSynth
         AudioBuffer<float>* getSamplerAudio(int soundIndex);
         void setIsLoop(const bool isLoop);
         void updateADSR();
-        
         juce::Synthesiser m_synth;
         juce::ADSR::Parameters m_adsrParams;
         std::atomic<double> m_audioSampleRate;
         std::atomic<double> m_audioBPM;
         std::atomic<bool> m_isReversed;
-        std::atomic<bool> m_isLoop;
+        std::atomic<bool> m_isMode2;
+        soundtouch::SoundTouch m_soundTouch;
+        std::vector<float> m_buf;
 };
