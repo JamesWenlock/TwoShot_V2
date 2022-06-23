@@ -27,7 +27,7 @@ TwoShotSynth::TwoShotSynth() :
     m_audioSampleRate(44100),
     m_audioBPM(120),
     m_isReversed(false),
-    m_isMode2(true)
+    m_isLoop(true)
 {
     m_soundTouch.setChannels(2);
     m_soundTouch.setSampleRate(m_audioSampleRate);
@@ -64,14 +64,13 @@ void TwoShotSynth::setAudio(
     if (audioBpm.has_value())
     {
         m_audioBPM = audioBpm.value();
-        m_isMode2 = true;
+        m_isLoop = true;
         setIsLoop(true);
         double beatsPerSecond = (audioBpm.value() / 60.0);
         double beatsPerSample = beatsPerSecond / audioSampleRate;
         double samplesPerBeat = 1.0 / beatsPerSample;
         int samplesPerBar = (int) samplesPerBeat * 4.0;
         int fadeLength = 30;
-        DBG(juce::String(samplesPerBar));
         m_audioSampleRate = audioSampleRate;
         int startSample = 0;
         int numSamples = jmin((int) samplesPerBar, (int) source.lengthInSamples);
@@ -88,12 +87,17 @@ void TwoShotSynth::setAudio(
     }
     else
     {
-        m_isMode2 = false;
+        m_isLoop = false;
         setIsLoop(false);
         BigInteger range;
         range.setRange(0, 127, true);
         m_audioSampleRate = audioSampleRate;
         m_synth.addSound(new TwoShotSound("sample", source, range, naturalPitch, 0.01, 0.01, 120));
+    }
+    if (m_isReversed)
+    {
+        setReverse(false);
+        m_isReversed = true;
     }
 }
 
@@ -121,15 +125,23 @@ void TwoShotSynth::setReverse(const bool isReversed)
 {
     if (m_isReversed != isReversed)
     {
-        if (m_isMode2)
-        {
-
+        if (m_isLoop)
+        {            
+            for (int i = 0; i < m_synth.getNumSounds(); ++i)
+            {
+                const int numSamples = getSamplerAudio(i)->getNumSamples();
+                getSamplerAudio(i)->reverse(i, numSamples);
+                getSamplerAudio(i)->
+            }
         }
         else
         {
+            const int soundIndex = m_synth.getNumSounds() - 1;
+            const int numSamples = getSamplerAudio(soundIndex)->getNumSamples();
+            getSamplerAudio(soundIndex)->reverse(soundIndex, numSamples);
 
         }
-        getSamplerAudio(0)->reverse(0, getSamplerAudio(0)->getNumSamples());
+        m_isReversed = isReversed;
     }
 }
 

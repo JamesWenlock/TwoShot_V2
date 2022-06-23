@@ -90,7 +90,7 @@ class TwoShotSynth
         std::atomic<double> m_audioSampleRate;
         std::atomic<double> m_audioBPM;
         std::atomic<bool> m_isReversed;
-        std::atomic<bool> m_isMode2;
+        std::atomic<bool> m_isLoop;
         soundtouch::SoundTouch m_soundTouch;
         std::vector<float> m_buf;
 };

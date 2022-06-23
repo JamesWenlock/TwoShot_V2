@@ -55,10 +55,10 @@ public:
 
     double getBPM();
     TwoShotSynth m_sampler;
+    AudioFormatManager m_formatManager;
 
 private:
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TwoShot_V2AudioProcessor)
     double m_bpm{ 125.0 };
-    AudioFormatManager m_formatManager;
 };
