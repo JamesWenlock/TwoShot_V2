@@ -85,12 +85,14 @@ class TwoShotSynth
         AudioBuffer<float>* getSamplerAudio(int soundIndex);
         void setIsLoop(const bool isLoop);
         void updateADSR();
+        void reverse();
         juce::Synthesiser m_synth;
         juce::ADSR::Parameters m_adsrParams;
         std::atomic<double> m_audioSampleRate;
         std::atomic<double> m_audioBPM;
         std::atomic<bool> m_isReversed;
         std::atomic<bool> m_isLoop;
+        std::atomic<int> m_midiNaturalNote;
         soundtouch::SoundTouch m_soundTouch;
         std::vector<float> m_buf;
 };

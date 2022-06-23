@@ -166,8 +166,17 @@ void TwoShot_V2AudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
     {
         auto* channelData = buffer.getWritePointer (channel);
 
+    };
+    if (getPlayHead())
+    {        
+        getPlayHead()->getCurrentPosition(m_info);
+
+        m_sampler.processNextBlock(buffer, midiMessages, m_info.bpm);
     }
-    m_sampler.processNextBlock(buffer, midiMessages, std::nullopt);
+    else
+    {
+        m_sampler.processNextBlock(buffer, midiMessages, std::nullopt);
+    }
 }
 
 //==============================================================================
@@ -193,11 +202,6 @@ void TwoShot_V2AudioProcessor::setStateInformation (const void* data, int sizeIn
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
-}
-
-double TwoShot_V2AudioProcessor::getBPM()
-{
-    return m_bpm;
 }
 
 //==============================================================================

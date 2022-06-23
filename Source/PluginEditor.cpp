@@ -22,7 +22,7 @@ TwoShot_V2AudioProcessorEditor::TwoShot_V2AudioProcessorEditor (TwoShot_V2AudioP
     slider.addListener(this);
     m_reverseButton.addListener(this);    
     m_modeButton.addListener(this);
-    slider.setRange(0.01, 2.0);
+    slider.setRange(-1200.0, 1200);
     slider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
     m_reverseButton.setButtonText("reverse");
     m_modeButton.setButtonText("mode");
@@ -34,15 +34,10 @@ TwoShot_V2AudioProcessorEditor::~TwoShot_V2AudioProcessorEditor()
 
 void TwoShot_V2AudioProcessorEditor::sliderValueChanged(Slider* slider)
 {
-    audioProcessor.m_sampler.setDecay(slider->getValue());
+    audioProcessor.m_sampler.setDetune(slider->getValue());
 }
 
 void TwoShot_V2AudioProcessorEditor::buttonClicked(Button* button)
-{
-
-}
-
-void TwoShot_V2AudioProcessorEditor::buttonStateChanged(Button* button)
 {
     if (std::addressof(m_reverseButton) == button)
     {
@@ -68,6 +63,11 @@ void TwoShot_V2AudioProcessorEditor::buttonStateChanged(Button* button)
 
         }
     }
+}
+
+void TwoShot_V2AudioProcessorEditor::buttonStateChanged(Button* button)
+{
+
 }
 
 //==============================================================================

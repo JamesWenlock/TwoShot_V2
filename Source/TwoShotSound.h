@@ -71,6 +71,8 @@ namespace juce
         /** Changes the parameters of the ADSR envelope which will be applied to the sample. */
         void setEnvelopeParameters(ADSR::Parameters parametersToUse) { params = parametersToUse; }
 
+        void setMidiNotes(BigInteger midiNotes, int midiRootNote);
+
         //==============================================================================
         bool appliesToNote(int midiNoteNumber) override;
         bool appliesToChannel(int midiChannel) override;

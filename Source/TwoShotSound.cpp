@@ -63,7 +63,7 @@ namespace juce
             data.get()->clear();
             source.read(data.get(), 0, numSamples, startSample, true, true);
             data.get()->applyGainRamp(
-                data.get()->getNumSamples() - fadeLength, 
+                data.get()->getNumSamples() - (fadeLength + 4), 
                 fadeLength, 
                 1.0, 
                 0
@@ -80,6 +80,12 @@ namespace juce
     bool TwoShotSound::appliesToNote(int midiNoteNumber)
     {
         return midiNotes[midiNoteNumber];
+    }
+
+    void TwoShotSound::setMidiNotes(BigInteger midiNotes, int midiRootNote)
+    {
+        this->midiNotes = midiNotes;
+        this->midiRootNote = midiRootNote;
     }
 
     bool TwoShotSound::appliesToChannel(int /*midiChannel*/)

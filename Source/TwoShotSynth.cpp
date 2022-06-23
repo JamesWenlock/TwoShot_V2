@@ -27,7 +27,8 @@ TwoShotSynth::TwoShotSynth() :
     m_audioSampleRate(44100),
     m_audioBPM(120),
     m_isReversed(false),
-    m_isLoop(true)
+    m_isLoop(true),
+    m_midiNaturalNote(64)
 {
     m_soundTouch.setChannels(2);
     m_soundTouch.setSampleRate(m_audioSampleRate);
@@ -35,7 +36,7 @@ TwoShotSynth::TwoShotSynth() :
     m_soundTouch.setPitch(0.5);
     m_soundTouch.flush();
 
-    int numVoices = 3;
+    int numVoices = 16;
 
     for (auto i = 0; i < numVoices; ++i)
     {
@@ -59,7 +60,6 @@ void TwoShotSynth::setAudio(
     const size_t sampleProgress
 )
 {
-    int naturalPitch = 64;
     m_synth.clearSounds();
     if (audioBpm.has_value())
     {
@@ -70,7 +70,7 @@ void TwoShotSynth::setAudio(
         double beatsPerSample = beatsPerSecond / audioSampleRate;
         double samplesPerBeat = 1.0 / beatsPerSample;
         int samplesPerBar = (int) samplesPerBeat * 4.0;
-        int fadeLength = 30;
+        int fadeLength = 70;
         m_audioSampleRate = audioSampleRate;
         int startSample = 0;
         int numSamples = jmin((int) samplesPerBar, (int) source.lengthInSamples);
@@ -78,8 +78,19 @@ void TwoShotSynth::setAudio(
         while (numSamples >= fadeLength && startSample < source.lengthInSamples)
         {
             BigInteger range;
-            range.setBit(naturalPitch + i);
-            m_synth.addSound(new TwoShotSound("sample", source, range, naturalPitch + i, startSample, numSamples, fadeLength, 0.01, 0.01, 120));
+            range.setBit(m_midiNaturalNote + i);
+            m_synth.addSound(new TwoShotSound(
+                "sample", 
+                source, 
+                range, 
+                m_midiNaturalNote + i, 
+                startSample, 
+                numSamples, 
+                fadeLength, 
+                0.01, 
+                0.01, 
+                120
+            ));
             startSample += samplesPerBar;
             numSamples = jmin((int)samplesPerBar, (int)source.lengthInSamples - startSample);
             i++;
@@ -92,12 +103,12 @@ void TwoShotSynth::setAudio(
         BigInteger range;
         range.setRange(0, 127, true);
         m_audioSampleRate = audioSampleRate;
-        m_synth.addSound(new TwoShotSound("sample", source, range, naturalPitch, 0.01, 0.01, 120));
+        m_synth.addSound(new TwoShotSound("sample", source, range, m_midiNaturalNote, 0.01, 0.01, 120));
     }
     if (m_isReversed)
     {
-        setReverse(false);
-        m_isReversed = true;
+        m_isReversed = false;
+        setReverse(true);
     }
 }
 
@@ -109,15 +120,6 @@ void TwoShotSynth::setHostSampleRate(const double currentSampleRate)
     m_synth.setCurrentPlaybackSampleRate(currentSampleRate);
 }
 
-///**
-//* This is called when the host changes its blockSize
-//*/
-//void TwoShotSynth::setHostBlockSize(const uint blockSize)
-//{
-//    m_buf.resize(static_cast<std::vector<float, std::allocator<float>>::size_type>(blockSize) * 2);
-//}
-
-
 /**
 * This is called when the user clicks the reverse toggle in the UI
 */
@@ -125,23 +127,40 @@ void TwoShotSynth::setReverse(const bool isReversed)
 {
     if (m_isReversed != isReversed)
     {
-        if (m_isLoop)
-        {            
-            for (int i = 0; i < m_synth.getNumSounds(); ++i)
+        reverse();
+        m_isReversed = isReversed;
+    }
+}
+
+void TwoShotSynth::reverse()
+{
+    if (m_isLoop)
+    {
+        for (int i = 0; i < m_synth.getNumSounds(); ++i)
+        {
+            const int numSamples = getSamplerAudio(i)->getNumSamples();
+
+            getSamplerAudio(i)->reverse(0, numSamples);
+            auto sound = dynamic_cast<TwoShotSound*>(m_synth.getSound(i).get());
+            if (sound)
             {
-                const int numSamples = getSamplerAudio(i)->getNumSamples();
-                getSamplerAudio(i)->reverse(i, numSamples);
-                getSamplerAudio(i)->
+                BigInteger midiNotes;
+                int midiIndex = (m_synth.getNumSounds() + m_midiNaturalNote - 1) - i;
+                DBG(midiIndex);
+                if (m_isReversed)
+                {
+                    midiIndex = m_midiNaturalNote + i;
+                }
+                midiNotes.setBit(midiIndex);
+                sound->setMidiNotes(midiNotes, midiIndex);
             }
         }
-        else
-        {
-            const int soundIndex = m_synth.getNumSounds() - 1;
-            const int numSamples = getSamplerAudio(soundIndex)->getNumSamples();
-            getSamplerAudio(soundIndex)->reverse(soundIndex, numSamples);
-
-        }
-        m_isReversed = isReversed;
+    }
+    else
+    {
+        const int soundIndex = m_synth.getNumSounds() - 1;
+        const int numSamples = getSamplerAudio(soundIndex)->getNumSamples();
+        getSamplerAudio(soundIndex)->reverse(soundIndex, numSamples);
     }
 }
 
