@@ -102,8 +102,11 @@ void TwoShot_V2AudioProcessor::prepareToPlay (double sampleRate, int samplesPerB
         .getChildFile("112loop.wav")
     );
     std::unique_ptr<AudioFormatReader> fileReader(m_formatManager.createReaderFor(*sample));
+    std::unique_ptr<AudioBuffer<float>> tempBuf(new AudioBuffer<float>());
+    tempBuf.get()->setSize(fileReader->numChannels, fileReader->lengthInSamples);
+    m_sampler.setAudio(std::move(*tempBuf.get()), fileReader->sampleRate, 112, 0);
     m_sampler.setHostSampleRate(sampleRate);
-    m_sampler.setAudio(*fileReader, fileReader->sampleRate, std::nullopt, 0);
+    m_sampler.setAudio(std::move(*tempBuf.get()), fileReader->sampleRate, std::nullopt, 0);
     m_sampler.setAttack(0.01);
     m_sampler.setDecay(0.01);
     m_sampler.setDetune(0);

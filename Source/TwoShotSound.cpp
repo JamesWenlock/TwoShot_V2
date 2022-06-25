@@ -12,34 +12,39 @@ Author:  Deuel Lab
 
 #include "TwoShotSound.h"
 
-TwoShotSound::TwoShotSound(const String& soundName,
-    AudioFormatReader& source,
+TwoShotSound::TwoShotSound(
+    AudioBuffer<float> & buffer,
+    double bufferSampleRate,
     const BigInteger& notes,
     int midiNoteForNormalPitch,
     double attackTimeSecs,
     double releaseTimeSecs,
     double maxSampleLengthSeconds)
-    : name(soundName),
-    sourceSampleRate(source.sampleRate),
+    :
+    sourceSampleRate(bufferSampleRate),
     midiNotes(notes),
     midiRootNote(midiNoteForNormalPitch)
 {
-    if (sourceSampleRate > 0 && source.lengthInSamples > 0)
+    if (sourceSampleRate > 0 && buffer.getNumSamples() > 0)
     {
-        length = jmin((int)source.lengthInSamples,
+        length = jmin((int)buffer.getNumSamples(),
             (int)(maxSampleLengthSeconds * sourceSampleRate));
 
-        data.reset(new AudioBuffer<float>(jmin(2, (int)source.numChannels), length + 4));
-
-        source.read(data.get(), 0, length + 4, 0, true, true);
+        data.reset(new AudioBuffer<float>(jmin(2, (int)buffer.getNumChannels()), length + 4));
+        data.get()->clear();
+        for (int i = 0; i < buffer.getNumChannels(); ++i)
+        {
+            data.get()->copyFrom(i, 0, buffer.getReadPointer(i), length);
+        }
 
         params.attack = static_cast<float> (attackTimeSecs);
         params.release = static_cast<float> (releaseTimeSecs);
     }
 }
 
-TwoShotSound::TwoShotSound(const String& soundName,
-    AudioFormatReader& source,
+TwoShotSound::TwoShotSound(
+    AudioBuffer<float> & buffer,
+    double bufferSampleRate,
     const BigInteger& notes,
     int midiNoteForNormalPitch,
     int startSample,
@@ -48,18 +53,21 @@ TwoShotSound::TwoShotSound(const String& soundName,
     double attackTimeSecs,
     double releaseTimeSecs,
     double maxSampleLengthSeconds)
-    : name(soundName),
-    sourceSampleRate(source.sampleRate),
+    :
+    sourceSampleRate(bufferSampleRate),
     midiNotes(notes),
     midiRootNote(midiNoteForNormalPitch)
 {
-    if (sourceSampleRate > 0 && source.lengthInSamples > 0)
+    if (sourceSampleRate > 0 && buffer.getNumSamples() > 0)
     {
         length = jmin((int)numSamples,
             (int)(maxSampleLengthSeconds * sourceSampleRate));
-        data.reset(new AudioBuffer<float>(jmin(2, (int)source.numChannels), length + 4));
+        data.reset(new AudioBuffer<float>(jmin(2, (int)buffer.getNumChannels()), length + 4));
         data.get()->clear();
-        source.read(data.get(), 0, numSamples, startSample, true, true);
+        for (int i = 0; i < buffer.getNumChannels(); ++i)
+        {
+            data.get()->copyFrom(i, 0,  buffer, i, startSample, length);
+        }
         data.get()->applyGainRamp(
             data.get()->getNumSamples() - (fadeLength + 4), 
             fadeLength, 
