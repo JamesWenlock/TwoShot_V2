@@ -1,135 +1,132 @@
 /*
-  ==============================================================================
+==============================================================================
 
-    TwoShotVoice.cpp
-    Created: 17 Jun 2022 3:26:01pm
-    Author:  Deuel Lab
+TwoShotVoice.cpp
+Created: 17 Jun 2022 3:26:01pm
+Author:  Deuel Lab
 
-  ==============================================================================
+==============================================================================
 */
 
 #include "TwoShotVoice.h"
 #include "TwoShotSound.h"
 
-namespace juce
+TwoShotVoice::TwoShotVoice() {
+
+}
+TwoShotVoice::~TwoShotVoice() {}
+
+bool TwoShotVoice::canPlaySound(SynthesiserSound* sound)
 {
-    TwoShotVoice::TwoShotVoice() {
+    return dynamic_cast<const TwoShotSound*> (sound) != nullptr;
+}
 
-    }
-    TwoShotVoice::~TwoShotVoice() {}
-
-    bool TwoShotVoice::canPlaySound(SynthesiserSound* sound)
+void TwoShotVoice::startNote(int midiNoteNumber, float velocity, SynthesiserSound* s, int /*currentPitchWheelPosition*/)
+{
+    if (auto* sound = dynamic_cast<const TwoShotSound*> (s))
     {
-        return dynamic_cast<const TwoShotSound*> (sound) != nullptr;
-    }
+        pitchRatio = std::pow(2.0, (midiNoteNumber - sound->midiRootNote) / 12.0) 
+            * sound->sourceSampleRate / getSampleRate();
 
-    void TwoShotVoice::startNote(int midiNoteNumber, float velocity, SynthesiserSound* s, int /*currentPitchWheelPosition*/)
+
+        sourceSamplePosition = 0.0;
+        lgain = velocity;
+        lgain = velocity;
+        rgain = velocity;
+
+        adsr.setSampleRate(sound->sourceSampleRate);
+        adsr.setParameters(sound->params);
+
+        adsr.noteOn();
+    }
+    else
     {
-        if (auto* sound = dynamic_cast<const TwoShotSound*> (s))
+        jassertfalse; // this object can only play TwoShotSounds!
+    }
+}
+
+void TwoShotVoice::stopNote(float /*velocity*/, bool allowTailOff)
+{
+    if (allowTailOff)
+    {
+        adsr.noteOff();
+    }
+    else
+    {
+        clearCurrentNote();
+        adsr.reset();
+    }
+}
+
+void TwoShotVoice::pitchWheelMoved(int /*newValue*/) {}
+void TwoShotVoice::controllerMoved(int /*controllerNumber*/, int /*newValue*/) {}
+
+void TwoShotVoice::setDetune(double newValue)
+{
+    detuneRatio = std::pow(2.0, (newValue / 1200.0));
+
+}
+
+void TwoShotVoice::setBPMComp(double audioBPM, double hostBPM)
+{
+    bpmCompRatio = (hostBPM / audioBPM);
+    soundTouch.setPitchOctaves(1.0);
+}
+
+void TwoShotVoice::setIsLoop(bool newValue)
+{
+    isLoop = newValue;
+}
+
+//==============================================================================
+void TwoShotVoice::renderNextBlock(AudioBuffer<float>& outputBuffer, int startSample, int numSamples)
+{
+    if (auto* playingSound = static_cast<TwoShotSound*> (getCurrentlyPlayingSound().get()))
+    {
+        auto& data = *playingSound->data;
+        const float* const inL = data.getReadPointer(0);
+        const float* const inR = data.getNumChannels() > 1 ? data.getReadPointer(1) : nullptr;
+
+        float* outL = outputBuffer.getWritePointer(0, startSample);
+        float* outR = outputBuffer.getNumChannels() > 1 ? outputBuffer.getWritePointer(1, startSample) : nullptr;
+        while (--numSamples >= 0)
         {
-            pitchRatio = std::pow(2.0, (midiNoteNumber - sound->midiRootNote) / 12.0) 
-                * sound->sourceSampleRate / getSampleRate();
+            auto pos = (int)sourceSamplePosition;
+            auto alpha = (float)(sourceSamplePosition - pos);
+            auto invAlpha = 1.0f - alpha;
 
+            // just using a very simple linear interpolation here..
+            float l = (inL[pos] * invAlpha + inL[pos + 1] * alpha);
+            float r = (inR != nullptr) ? (inR[pos] * invAlpha + inR[pos + 1] * alpha)
+                : l;
 
-            sourceSamplePosition = 0.0;
-            lgain = velocity;
-            lgain = velocity;
-            rgain = velocity;
+            auto envelopeValue = adsr.getNextSample();
 
-            adsr.setSampleRate(sound->sourceSampleRate);
-            adsr.setParameters(sound->params);
+            l *= lgain * envelopeValue;
+            r *= rgain * envelopeValue;
 
-            adsr.noteOn();
-        }
-        else
-        {
-            jassertfalse; // this object can only play TwoShotSounds!
-        }
-    }
-
-    void TwoShotVoice::stopNote(float /*velocity*/, bool allowTailOff)
-    {
-        if (allowTailOff)
-        {
-            adsr.noteOff();
-        }
-        else
-        {
-            clearCurrentNote();
-            adsr.reset();
-        }
-    }
-
-    void TwoShotVoice::pitchWheelMoved(int /*newValue*/) {}
-    void TwoShotVoice::controllerMoved(int /*controllerNumber*/, int /*newValue*/) {}
-
-    void TwoShotVoice::setDetune(double newValue)
-    {
-        detuneRatio = std::pow(2.0, (newValue / 1200.0));
-
-    }
-
-    void TwoShotVoice::setBPMComp(double audioBPM, double hostBPM)
-    {
-        bpmCompRatio = (hostBPM / audioBPM);
-        soundTouch.setPitchOctaves(1.0);
-    }
-
-    void TwoShotVoice::setIsLoop(bool newValue)
-    {
-        isLoop = newValue;
-    }
-
-    //==============================================================================
-    void TwoShotVoice::renderNextBlock(AudioBuffer<float>& outputBuffer, int startSample, int numSamples)
-    {
-        if (auto* playingSound = static_cast<TwoShotSound*> (getCurrentlyPlayingSound().get()))
-        {
-            auto& data = *playingSound->data;
-            const float* const inL = data.getReadPointer(0);
-            const float* const inR = data.getNumChannels() > 1 ? data.getReadPointer(1) : nullptr;
-
-            float* outL = outputBuffer.getWritePointer(0, startSample);
-            float* outR = outputBuffer.getNumChannels() > 1 ? outputBuffer.getWritePointer(1, startSample) : nullptr;
-            while (--numSamples >= 0)
+            if (outR != nullptr)
             {
-                auto pos = (int)sourceSamplePosition;
-                auto alpha = (float)(sourceSamplePosition - pos);
-                auto invAlpha = 1.0f - alpha;
+                *outL++ += l;
+                *outR++ += r;
+            }
+            else
+            {
+                *outL = (l + r) * 0.5f;
+            }
+            if (isLoop)
+            {
+                sourceSamplePosition += (pitchRatio * bpmCompRatio);
+            }
+            else
+            {
+                sourceSamplePosition += (pitchRatio * detuneRatio);
+            }
 
-                // just using a very simple linear interpolation here..
-                float l = (inL[pos] * invAlpha + inL[pos + 1] * alpha);
-                float r = (inR != nullptr) ? (inR[pos] * invAlpha + inR[pos + 1] * alpha)
-                    : l;
-
-                auto envelopeValue = adsr.getNextSample();
-
-                l *= lgain * envelopeValue;
-                r *= rgain * envelopeValue;
-
-                if (outR != nullptr)
-                {
-                    *outL++ += l;
-                    *outR++ += r;
-                }
-                else
-                {
-                    *outL = (l + r) * 0.5f;
-                }
-                if (isLoop)
-                {
-                    sourceSamplePosition += (pitchRatio * bpmCompRatio);
-                }
-                else
-                {
-                    sourceSamplePosition += (pitchRatio * detuneRatio);
-                }
-
-                if (sourceSamplePosition > playingSound->length)
-                {
-                    stopNote(0.0f, false);
-                    break;
-                }
+            if (sourceSamplePosition > playingSound->length)
+            {
+                stopNote(0.0f, false);
+                break;
             }
         }
     }
