@@ -54,7 +54,7 @@ TwoShotSynth::~TwoShotSynth()
 * @param audioBpm if this value is present, then this is a polyphonic Loop, and the TwoShotSynth goes into LOOP MODE
 */
 void TwoShotSynth::setAudio(
-    juce::AudioFormatReader &source,
+    juce::AudioBuffer<float> && buffer,
     const double audioSampleRate,
     std::optional<const double> audioBpm,
     const size_t sampleProgress
@@ -73,15 +73,15 @@ void TwoShotSynth::setAudio(
         int fadeLength = 70;
         m_audioSampleRate = audioSampleRate;
         int startSample = 0;
-        int numSamples = jmin((int) samplesPerBar, (int) source.lengthInSamples);
+        int numSamples = jmin((int) samplesPerBar, (int) buffer.getNumSamples());
         int i = 0;
-        while (numSamples >= fadeLength && startSample < source.lengthInSamples)
+        while (numSamples >= fadeLength && startSample < buffer.getNumSamples())
         {
             BigInteger range;
             range.setBit(m_midiNaturalNote + i);
             m_synth.addSound(new TwoShotSound(
-                "sample", 
-                source, 
+                buffer,
+                audioSampleRate,
                 range, 
                 m_midiNaturalNote + i, 
                 startSample, 
@@ -92,7 +92,7 @@ void TwoShotSynth::setAudio(
                 120
             ));
             startSample += samplesPerBar;
-            numSamples = jmin((int)samplesPerBar, (int)source.lengthInSamples - startSample);
+            numSamples = jmin((int)samplesPerBar, (int)buffer.getNumSamples() - startSample);
             i++;
         }
     }
@@ -103,7 +103,7 @@ void TwoShotSynth::setAudio(
         BigInteger range;
         range.setRange(0, 127, true);
         m_audioSampleRate = audioSampleRate;
-        m_synth.addSound(new TwoShotSound("sample", source, range, m_midiNaturalNote, 0.01, 0.01, 120));
+        m_synth.addSound(new TwoShotSound(buffer, audioSampleRate, range, m_midiNaturalNote, 0.01, 0.01, 120));
     }
     if (m_isReversed)
     {

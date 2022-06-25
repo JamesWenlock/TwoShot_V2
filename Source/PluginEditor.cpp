@@ -52,14 +52,16 @@ void TwoShot_V2AudioProcessorEditor::buttonClicked(Button* button)
             .getChildFile("112loop.wav")
         );
         std::unique_ptr<AudioFormatReader> fileReader(audioProcessor.m_formatManager.createReaderFor(*sample));
+        std::unique_ptr<AudioBuffer<float>> tempBuf (new AudioBuffer<float>());
+        tempBuf.get()->setSize(fileReader->numChannels, fileReader->lengthInSamples);
         if (m_modeButton.getToggleState())
         {
-            audioProcessor.m_sampler.setAudio(*fileReader, fileReader->sampleRate, 112, 0);
+            audioProcessor.m_sampler.setAudio(std::move(*tempBuf.get()), fileReader->sampleRate, 112, 0);
 
         }
         else
         {
-            audioProcessor.m_sampler.setAudio(*fileReader, fileReader->sampleRate, std::nullopt, 0);
+            audioProcessor.m_sampler.setAudio(std::move(*tempBuf.get()), fileReader->sampleRate, std::nullopt, 0);
 
         }
     }
