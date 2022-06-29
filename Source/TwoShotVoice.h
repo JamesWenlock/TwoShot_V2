@@ -62,7 +62,7 @@ private:
     double sourceSamplePosition = 0;
     float lgain = 0, rgain = 0;
     bool isLoop = false;
-    soundtouch::SoundTouch soundTouch;
+    //soundtouch::SoundTouch soundTouch;
 
     ADSR adsr;
 

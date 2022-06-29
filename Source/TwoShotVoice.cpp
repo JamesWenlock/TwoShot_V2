@@ -70,7 +70,7 @@ void TwoShotVoice::setDetune(double newValue)
 void TwoShotVoice::setBPMComp(double audioBPM, double hostBPM)
 {
     bpmCompRatio = (hostBPM / audioBPM);
-    soundTouch.setPitchOctaves(1.0);
+    //soundTouch.setPitchOctaves(1.0);
 }
 
 void TwoShotVoice::setIsLoop(bool newValue)

@@ -13,7 +13,7 @@ Author:  Deuel Lab
 #include "TwoShotSound.h"
 
 TwoShotSound::TwoShotSound(
-    AudioBuffer<float> & buffer,
+    std::unique_ptr<AudioBuffer<float>> & buffer,
     double bufferSampleRate,
     const BigInteger& notes,
     int midiNoteForNormalPitch,
@@ -25,16 +25,16 @@ TwoShotSound::TwoShotSound(
     midiNotes(notes),
     midiRootNote(midiNoteForNormalPitch)
 {
-    if (sourceSampleRate > 0 && buffer.getNumSamples() > 0)
+    if (sourceSampleRate > 0 && buffer.get()->getNumSamples() > 0)
     {
-        length = jmin((int)buffer.getNumSamples(),
+        length = jmin((int)buffer.get()->getNumSamples(),
             (int)(maxSampleLengthSeconds * sourceSampleRate));
 
-        data.reset(new AudioBuffer<float>(jmin(2, (int)buffer.getNumChannels()), length + 4));
+        data.reset(new AudioBuffer<float>(jmin(2, (int)buffer.get()->getNumChannels()), length + 4));
         data.get()->clear();
-        for (int i = 0; i < buffer.getNumChannels(); ++i)
+        for (int i = 0; i < buffer.get()->getNumChannels(); ++i)
         {
-            data.get()->copyFrom(i, 0, buffer.getReadPointer(i), length);
+            data.get()->copyFrom(i, 0, buffer.get()->getReadPointer(i), length);
         }
 
         params.attack = static_cast<float> (attackTimeSecs);
@@ -43,7 +43,7 @@ TwoShotSound::TwoShotSound(
 }
 
 TwoShotSound::TwoShotSound(
-    AudioBuffer<float> & buffer,
+    std::unique_ptr<AudioBuffer<float>> & buffer,
     double bufferSampleRate,
     const BigInteger& notes,
     int midiNoteForNormalPitch,
@@ -58,15 +58,15 @@ TwoShotSound::TwoShotSound(
     midiNotes(notes),
     midiRootNote(midiNoteForNormalPitch)
 {
-    if (sourceSampleRate > 0 && buffer.getNumSamples() > 0)
+    if (sourceSampleRate > 0 && buffer.get()->getNumSamples() > 0)
     {
         length = jmin((int)numSamples,
             (int)(maxSampleLengthSeconds * sourceSampleRate));
-        data.reset(new AudioBuffer<float>(jmin(2, (int)buffer.getNumChannels()), length + 4));
+        data.reset(new AudioBuffer<float>(jmin(2, (int)buffer.get()->getNumChannels()), length + 4));
         data.get()->clear();
-        for (int i = 0; i < buffer.getNumChannels(); ++i)
+        for (int i = 0; i < buffer.get()->getNumChannels(); ++i)
         {
-            data.get()->copyFrom(i, 0,  buffer, i, startSample, length);
+            data.get()->copyFrom(i, 0,  *buffer.get(), i, startSample, length);
         }
         data.get()->applyGainRamp(
             data.get()->getNumSamples() - (fadeLength + 4), 

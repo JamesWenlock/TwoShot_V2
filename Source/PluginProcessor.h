@@ -9,7 +9,7 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "TwoShotSynth.h"
+#include "TwoShotSampler.h"
 //==============================================================================
 /**
 */
@@ -53,7 +53,7 @@ public:
     void getStateInformation(juce::MemoryBlock& destData) override;
     void setStateInformation(const void* data, int sizeInBytes) override;
 
-    TwoShotSynth m_sampler;
+    TwoShotSampler m_sampler;
     AudioFormatManager m_formatManager;
     juce::AudioPlayHead::CurrentPositionInfo m_info;
 

@@ -16,9 +16,10 @@
       <FILE id="Qv29no" name="TwoShotSound.cpp" compile="1" resource="0"
             file="Source/TwoShotSound.cpp"/>
       <FILE id="dbr821" name="TwoShotSound.h" compile="0" resource="0" file="Source/TwoShotSound.h"/>
-      <FILE id="PxtJOC" name="TwoShotSynth.cpp" compile="1" resource="0"
-            file="Source/TwoShotSynth.cpp"/>
-      <FILE id="zfbkoh" name="TwoShotSynth.h" compile="0" resource="0" file="Source/TwoShotSynth.h"/>
+      <FILE id="PxtJOC" name="TwoShotSampler.cpp" compile="1" resource="0"
+            file="Source/TwoShotSampler.cpp"/>
+      <FILE id="zfbkoh" name="TwoShotSampler.h" compile="0" resource="0"
+            file="Source/TwoShotSampler.h"/>
       <FILE id="dOCKBS" name="TwoShotVoice.cpp" compile="1" resource="0"
             file="Source/TwoShotVoice.cpp"/>
       <FILE id="onHaLo" name="TwoShotVoice.h" compile="0" resource="0" file="Source/TwoShotVoice.h"/>

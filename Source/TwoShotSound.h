@@ -34,7 +34,7 @@ public:
                                         source, in seconds
     */
     TwoShotSound(
-        AudioBuffer<float> & buffer,
+        std::unique_ptr<AudioBuffer<float>> & buffer,
         double bufferSampleRate,
         const BigInteger& midiNotes,
         int midiNoteForNormalPitch,
@@ -43,7 +43,7 @@ public:
         double maxSampleLengthSeconds);
 
     TwoShotSound(
-        AudioBuffer<float>& buffer,
+        std::unique_ptr<AudioBuffer<float>> & buffer,
         double bufferSampleRate,
         const BigInteger& midiNotes,
         int midiNoteForNormalPitch,
