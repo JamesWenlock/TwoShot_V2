@@ -39,7 +39,11 @@ class TwoShotSynth
             juce::AudioFormatReader& source,
             const double audioSampleRate,
             std::optional<const double> audioBpm,
-            const size_t sampleProgress = 0
+            const double sliceLength,
+            const double maxSampleLength,
+            const double initAtk,
+            const double initDec,
+            const int midiNaturalNote
         );
 
         ///**
@@ -93,6 +97,6 @@ class TwoShotSynth
         std::atomic<bool> m_isReversed;
         std::atomic<bool> m_isLoop;
         std::atomic<int> m_midiNaturalNote;
-        soundtouch::SoundTouch m_soundTouch;
-        std::vector<float> m_buf;
+        //soundtouch::SoundTouch m_soundTouch;
+        //std::vector<float> m_buf;
 };

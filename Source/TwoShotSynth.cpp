@@ -30,11 +30,11 @@ TwoShotSynth::TwoShotSynth() :
     m_isLoop(true),
     m_midiNaturalNote(64)
 {
-    m_soundTouch.setChannels(2);
-    m_soundTouch.setSampleRate(m_audioSampleRate);
-    m_soundTouch.setRate(1.0);
-    m_soundTouch.setPitch(0.5);
-    m_soundTouch.flush();
+    //m_soundTouch.setChannels(2);
+    //m_soundTouch.setSampleRate(m_audioSampleRate);
+    //m_soundTouch.setRate(1.0);
+    //m_soundTouch.setPitch(0.5);
+    //m_soundTouch.flush();
 
     int numVoices = 16;
 
@@ -57,21 +57,26 @@ void TwoShotSynth::setAudio(
     juce::AudioFormatReader &source,
     const double audioSampleRate,
     std::optional<const double> audioBpm,
-    const size_t sampleProgress
+    const double sliceLength,
+    const double maxSampleLength,
+    const double initAtk,
+    const double initDec,
+    const int midiNaturalNote
 )
 {
     m_synth.clearSounds();
+    m_midiNaturalNote = midiNaturalNote;
     if (audioBpm.has_value())
     {
+        m_audioSampleRate = audioSampleRate;
         m_audioBPM = audioBpm.value();
         m_isLoop = true;
         setIsLoop(true);
         double beatsPerSecond = (audioBpm.value() / 60.0);
         double beatsPerSample = beatsPerSecond / audioSampleRate;
         double samplesPerBeat = 1.0 / beatsPerSample;
-        int samplesPerBar = (int) samplesPerBeat * 4.0;
+        int samplesPerBar = (int) samplesPerBeat * sliceLength;
         int fadeLength = 70;
-        m_audioSampleRate = audioSampleRate;
         int startSample = 0;
         int numSamples = jmin((int) samplesPerBar, (int) source.lengthInSamples);
         int i = 0;
@@ -80,16 +85,15 @@ void TwoShotSynth::setAudio(
             BigInteger range;
             range.setBit(m_midiNaturalNote + i);
             m_synth.addSound(new TwoShotSound(
-                "sample", 
                 source, 
                 range, 
                 m_midiNaturalNote + i, 
                 startSample, 
                 numSamples, 
                 fadeLength, 
-                0.01, 
-                0.01, 
-                120
+                initAtk, 
+                initDec, 
+                maxSampleLength
             ));
             startSample += samplesPerBar;
             numSamples = jmin((int)samplesPerBar, (int)source.lengthInSamples - startSample);
@@ -103,7 +107,14 @@ void TwoShotSynth::setAudio(
         BigInteger range;
         range.setRange(0, 127, true);
         m_audioSampleRate = audioSampleRate;
-        m_synth.addSound(new TwoShotSound("sample", source, range, m_midiNaturalNote, 0.01, 0.01, 120));
+        m_synth.addSound(new TwoShotSound(
+            source, 
+            range, 
+            m_midiNaturalNote, 
+            0.01, 
+            0.01, 
+            120
+        ));
     }
     if (m_isReversed)
     {

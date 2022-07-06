@@ -46,20 +46,20 @@ void TwoShot_V2AudioProcessorEditor::buttonClicked(Button* button)
 
     if (std::addressof(m_modeButton) == button)
     {
-        File* sample = new File(
-            File::getSpecialLocation(File::userDesktopDirectory)
+        std::unique_ptr<File> sample = std::make_unique<File>(File::getSpecialLocation(File::userDesktopDirectory)
             .getChildFile("Samples")
-            .getChildFile("112loop.wav")
-        );
-        std::unique_ptr<AudioFormatReader> fileReader(audioProcessor.m_formatManager.createReaderFor(*sample));
+            .getChildFile("112loop.wav"));
+
+        std::unique_ptr<AudioFormatReader> fileReader(audioProcessor.m_formatManager.createReaderFor(*sample.get()));
+
         if (m_modeButton.getToggleState())
         {
-            audioProcessor.m_sampler.setAudio(*fileReader, fileReader->sampleRate, 112, 0);
+            audioProcessor.m_sampler.setAudio(*fileReader, fileReader->sampleRate, 112, 1, 60.0 * 2, 0.01, 0.01, 64);
 
         }
         else
         {
-            audioProcessor.m_sampler.setAudio(*fileReader, fileReader->sampleRate, std::nullopt, 0);
+            audioProcessor.m_sampler.setAudio(*fileReader, fileReader->sampleRate, std::nullopt, 1, 60.0 * 2, 0.01, 0.01, 64);
 
         }
     }

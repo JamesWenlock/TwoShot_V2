@@ -33,7 +33,7 @@ public:
         @param maxSampleLengthSeconds   a maximum length of audio to read from the audio
                                         source, in seconds
     */
-    TwoShotSound(const String& name,
+    TwoShotSound(
         AudioFormatReader& source,
         const BigInteger& midiNotes,
         int midiNoteForNormalPitch,
@@ -41,7 +41,7 @@ public:
         double releaseTimeSecs,
         double maxSampleLengthSeconds);
 
-    TwoShotSound(const String& name,
+    TwoShotSound(
         AudioFormatReader& source,
         const BigInteger& midiNotes,
         int midiNoteForNormalPitch,
@@ -57,7 +57,6 @@ public:
 
     //==============================================================================
     /** Returns the sample's name */
-    const String& getName() const noexcept { return name; }
 
     /** Returns the audio sample data.
         This could return nullptr if there was a problem loading the data.
@@ -78,7 +77,6 @@ private:
     //==============================================================================
     friend class TwoShotVoice;
 
-    String name;
     double sourceSampleRate;
     BigInteger midiNotes;
     int midiRootNote = 0;

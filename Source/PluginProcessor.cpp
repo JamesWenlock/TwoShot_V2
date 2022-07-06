@@ -96,14 +96,16 @@ void TwoShot_V2AudioProcessor::changeProgramName (int index, const juce::String&
 //==============================================================================
 void TwoShot_V2AudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    File* sample = new File(
-        File::getSpecialLocation(File::userDesktopDirectory)
+
+
+    std::unique_ptr<File> sample = std::make_unique<File>(File::getSpecialLocation(File::userDesktopDirectory)
         .getChildFile("Samples")
-        .getChildFile("112loop.wav")
-    );
-    std::unique_ptr<AudioFormatReader> fileReader(m_formatManager.createReaderFor(*sample));
+        .getChildFile("112loop.wav"));
+
+
+    std::unique_ptr<AudioFormatReader> fileReader(m_formatManager.createReaderFor(*sample.get()));
     m_sampler.setHostSampleRate(sampleRate);
-    m_sampler.setAudio(*fileReader, fileReader->sampleRate, std::nullopt, 0);
+    m_sampler.setAudio(*fileReader, fileReader->sampleRate, std::nullopt, 1, 60.0 * 2, 0.01, 0.01, 64);
     m_sampler.setAttack(0.01);
     m_sampler.setDecay(0.01);
     m_sampler.setDetune(0);

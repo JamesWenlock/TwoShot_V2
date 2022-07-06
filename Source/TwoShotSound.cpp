@@ -12,15 +12,14 @@ Author:  Deuel Lab
 
 #include "TwoShotSound.h"
 
-TwoShotSound::TwoShotSound(const String& soundName,
+TwoShotSound::TwoShotSound(
     AudioFormatReader& source,
     const BigInteger& notes,
     int midiNoteForNormalPitch,
     double attackTimeSecs,
     double releaseTimeSecs,
     double maxSampleLengthSeconds)
-    : name(soundName),
-    sourceSampleRate(source.sampleRate),
+    : sourceSampleRate(source.sampleRate),
     midiNotes(notes),
     midiRootNote(midiNoteForNormalPitch)
 {
@@ -38,7 +37,7 @@ TwoShotSound::TwoShotSound(const String& soundName,
     }
 }
 
-TwoShotSound::TwoShotSound(const String& soundName,
+TwoShotSound::TwoShotSound(
     AudioFormatReader& source,
     const BigInteger& notes,
     int midiNoteForNormalPitch,
@@ -48,8 +47,7 @@ TwoShotSound::TwoShotSound(const String& soundName,
     double attackTimeSecs,
     double releaseTimeSecs,
     double maxSampleLengthSeconds)
-    : name(soundName),
-    sourceSampleRate(source.sampleRate),
+    : sourceSampleRate(source.sampleRate),
     midiNotes(notes),
     midiRootNote(midiNoteForNormalPitch)
 {
