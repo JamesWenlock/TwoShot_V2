@@ -34,6 +34,7 @@ TwoShotSynth::TwoShotSynth() :
     //m_soundTouch.setSampleRate(m_audioSampleRate);
     //m_soundTouch.setRate(1.0);
     //m_soundTouch.setPitch(0.5);
+    // 
     //m_soundTouch.flush();
 
     int numVoices = 16;
@@ -65,7 +66,6 @@ void TwoShotSynth::setAudio(
 )
 {
     m_synth.clearSounds();
-    m_midiNaturalNote = midiNaturalNote;
     if (audioBpm.has_value())
     {
         m_audioSampleRate = audioSampleRate;
@@ -83,20 +83,19 @@ void TwoShotSynth::setAudio(
         while (numSamples >= fadeLength && startSample < source.lengthInSamples)
         {
             BigInteger range;
-            range.setBit(m_midiNaturalNote + i);
+            range.setBit(midiNaturalNote + i);
             m_synth.addSound(new TwoShotSound(
                 source, 
                 range, 
-                m_midiNaturalNote + i, 
+                midiNaturalNote + i, 
                 startSample, 
-                numSamples, 
+                (int)source.lengthInSamples - startSample,
                 fadeLength, 
                 initAtk, 
                 initDec, 
                 maxSampleLength
             ));
             startSample += samplesPerBar;
-            numSamples = jmin((int)samplesPerBar, (int)source.lengthInSamples - startSample);
             i++;
         }
     }
@@ -110,10 +109,10 @@ void TwoShotSynth::setAudio(
         m_synth.addSound(new TwoShotSound(
             source, 
             range, 
-            m_midiNaturalNote, 
-            0.01, 
-            0.01, 
-            120
+            midiNaturalNote, 
+            initAtk, 
+            initDec, 
+            maxSampleLength
         ));
     }
     if (m_isReversed)
@@ -121,6 +120,7 @@ void TwoShotSynth::setAudio(
         m_isReversed = false;
         setReverse(true);
     }
+    m_midiNaturalNote = midiNaturalNote;
 }
 
 /**
